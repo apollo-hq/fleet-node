@@ -78,7 +78,7 @@ message ValidatorErrors {
 }
 
 message ValidatorError {
-  string reason      = 1;
+  string reason      = 1;  // example: card_write_failed
   uint64 soundId     = 2;
   uint64 messageId   = 3;
   uint64 messageText = 4;

@@ -10,6 +10,9 @@ service Validator {
   rpc ListValidationSounds(ValidationSoundRequest) returns (ValidationSound) {}
 
   rpc GetConfiguration(ValidatorConfigurationRequest) returns (ValidatorConfigurationResponse) {}
+  // ListValidatorErrors returns a list of images, messages and sounds to use during certain errors
+  // that happen before or after Validate transactions. 
+  rpc ListValidatorErrors(ValidatorErrorsRequest) returns (ValidatorErrors) {}
 
   rpc Validate(ValidateRequest) returns (ValidateResponse) {}
 }
@@ -63,4 +66,20 @@ message ValidateResponse {
 
   uint64 sector      = 5; // sector where to write the data
   bytes  blockData   = 6; // data payload
+}
+
+message ValidatorErrorsRequest {}
+
+// ValidatorErrors represents a list of messages & images that can be displayed
+// on the validator screen when errors occure (for example validator successfully validated
+// a card but failed to write data to a card)
+message ValidatorErrors {
+  repeated ValidatorError errors = 1;
+}
+
+message ValidatorError {
+  string reason      = 1;
+  uint64 soundId     = 2;
+  uint64 messageId   = 3;
+  uint64 messageText = 4;
 }

@@ -1,0 +1,66 @@
+// package validator_v1 implements a validator <-> onboard PC communication
+// protocol. All RPC methods should be accompanied by a header with 
+// the validator ID. Calls that don't provide the header, will be rejected
+
+syntax = "proto3";
+package validator_v1;
+
+service Validator {
+  rpc ListValidationMessages(ValidationMessageRequest) returns (ValidationMessage) {}
+  rpc ListValidationSounds(ValidationSoundRequest) returns (ValidationSound) {}
+
+  rpc GetConfiguration(ValidatorConfigurationRequest) returns (ValidatorConfigurationResponse) {}
+
+  rpc Validate(ValidateRequest) returns (ValidateResponse) {}
+}
+
+message ValidationMessageRequest {}
+
+// ValidationMessage is a validation message type. There can be multiple message
+// types returned from via the RPC method
+message ValidationMessage {
+  uint64 id     = 1; // message ID
+  string text   = 2; // alternative text
+  bytes  image  = 3; // image bytes
+}
+
+message ValidationSoundRequest {}
+
+message ValidationSound {
+  uint64 id     = 1; // sound ID
+  bytes  sound  = 2; // validation bytes
+}
+
+message ValidatorConfigurationRequest {}
+
+// ValidatorConfigurationResponse is returned by the node
+// to validator to indicate which sector of the card to read during
+// the validation
+message ValidatorConfigurationResponse {
+  uint64 readSector  = 1;
+  uint64 writeSector = 2;
+}
+
+// ValidateRequest is a request sent by the validator to the onboard node
+// for the card/ticket validation
+message ValidateRequest {
+  string uuid      = 1;  
+  bytes  blockData = 2;    
+}
+
+// ValidateResponse is a response returned by the onboard node to the validator
+message ValidateResponse {
+  enum Status {
+    // 0 is reserved for errors
+    OK           = 1;
+    ERROR        = 2;
+    SERVER_ERROR = 3;
+  };
+  Status status      = 1; // generic status
+  uint64 soundId     = 2; // which sound ID to play
+  uint64 messageId   = 3; // which message image to show
+  string messageText = 4; // optionally used together with the messageId when showing 'Valid till 2019-09-29'
+
+  uint64 sector      = 5; // sector where to write the data
+  bytes  blockData   = 6; // data payload
+}

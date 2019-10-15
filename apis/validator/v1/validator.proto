@@ -40,8 +40,10 @@ message ValidatorConfigurationRequest {}
 // to validator to indicate which sector of the card to read during
 // the validation
 message ValidatorConfigurationResponse {
-  uint64 readSector  = 1;
-  uint64 writeSector = 2;
+  uint64 readSector     = 1;
+  bytes  readSectorKey  = 2;
+  uint64 writeSector    = 3;
+  bytes writeSectorKey  = 4;
 }
 
 // ValidateRequest is a request sent by the validator to the onboard node

@@ -3,7 +3,9 @@
 // the validator ID. Calls that don't provide the header, will be rejected
 
 syntax = "proto3";
-package validator_v1;
+package github.com.apollohq.fleetnodedaemon.apis.validator_v1;
+
+option go_package = "validator";
 
 service Validator {
   rpc ListValidationMessages(ValidationMessageRequest) returns (ValidationMessage) {}
@@ -57,6 +59,7 @@ message ValidateRequest {
 message ValidateResponse {
   enum Status {
     // 0 is reserved for errors
+    UNKNOWN      = 0;
     OK           = 1;
     ERROR        = 2;
     SERVER_ERROR = 3;

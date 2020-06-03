@@ -5,35 +5,47 @@
 syntax = "proto3";
 package github.com.apollohq.fleetnodedaemon.apis.validator_v1;
 
-option go_package = "validator";
-
 service Validator {
-  rpc ListValidationMessages(ValidationMessageRequest) returns (ValidationMessage) {}
-  rpc ListValidationSounds(ValidationSoundRequest) returns (ValidationSound) {}
+  rpc ListValidationMessages(ValidationMessageRequest) returns (ListValidationMessageResponse) {}
+  rpc ListValidationSounds(ValidationSoundRequest) returns (ListValidationSoundResponse) {}
 
   rpc GetConfiguration(ValidatorConfigurationRequest) returns (ValidatorConfigurationResponse) {}
-  // ListValidatorErrors returns a list of images, messages and sounds to use during certain errors
+  // ListValidationErrors returns a list of images, messages and sounds to use during certain errors
   // that happen before or after Validate transactions. 
-  rpc ListValidatorErrors(ValidatorErrorsRequest) returns (ValidatorErrors) {}
+  rpc ListValidationErrors(ValidationErrorsRequest) returns (ListValidationErrorsResponse) {}
 
+  // Validates a card (under the hood it will either buy a single day ticket 
+  // or check whether user already has monthly ticket)
   rpc Validate(ValidateRequest) returns (ValidateResponse) {}
 }
 
 message ValidationMessageRequest {}
 
+message ListValidationMessageResponse {
+  repeated ValidationMessage messages = 1;
+}
+
 // ValidationMessage is a validation message type. There can be multiple message
 // types returned from via the RPC method
 message ValidationMessage {
-  uint64 id     = 1; // message ID
-  string text   = 2; // alternative text
-  bytes  image  = 3; // image bytes
+  uint64 id            = 1; // message ID
+  string text          = 2; // alternative text
+  bytes  image         = 3; // image bytes
+  string imageChecksum = 4; // md5 checksum of the image
+  int64  updated       = 5; // last updated unix timestamp
 }
 
 message ValidationSoundRequest {}
 
+message ListValidationSoundResponse {
+  repeated ValidationSound sounds = 1;
+}
+
 message ValidationSound {
-  uint64 id     = 1; // sound ID
-  bytes  sound  = 2; // validation bytes
+  uint64 id            = 1; // sound ID
+  bytes  sound         = 2; // validation bytes
+  string soundChecksum = 4; // md5 checksum of the sound
+  int64  updated       = 5; // last updated unix timestamp
 }
 
 message ValidatorConfigurationRequest {}
@@ -45,14 +57,22 @@ message ValidatorConfigurationResponse {
   uint64 readSector     = 1;
   bytes  readSectorKey  = 2;
   uint64 writeSector    = 3;
-  bytes writeSectorKey  = 4;
+  bytes  writeSectorKey = 4;
 }
 
 // ValidateRequest is a request sent by the validator to the onboard node
 // for the card/ticket validation
 message ValidateRequest {
-  string uuid      = 1;  
-  bytes  blockData = 2;    
+  string              identifier = 1; // mifare, for example '3059947987'
+  enum Type {
+    // 0 is reserved for unknown
+    UNKNOWN      = 0;
+    MIFARE       = 1;
+    RFID         = 2;
+  };
+  Type                type       = 2; // token type (card, rfid)
+  bytes               blockData  = 3; // data read using info provided by ValidatorConfigurationResponse readSector & readSecodKey
+  map<string, string> metadata   = 4; // gps coords, stop_id, distance, etc..
 }
 
 // ValidateResponse is a response returned by the onboard node to the validator
@@ -73,18 +93,19 @@ message ValidateResponse {
   bytes  blockData   = 6; // data payload
 }
 
-message ValidatorErrorsRequest {}
+message ValidationErrorsRequest {}
 
-// ValidatorErrors represents a list of messages & images that can be displayed
+// ListValidatorErrorsResponse represents a list of messages & images that can be displayed
 // on the validator screen when errors occure (for example validator successfully validated
 // a card but failed to write data to a card)
-message ValidatorErrors {
-  repeated ValidatorError errors = 1;
+message ListValidationErrorsResponse {
+  repeated ValidationError errors = 1;
 }
 
-message ValidatorError {
-  string reason      = 1;  // example: card_write_failed
-  uint64 soundId     = 2;
-  uint64 messageId   = 3;
-  uint64 messageText = 4;
+message ValidationError {
+  uint64 id          = 1;
+  string reason      = 2;  // example: card_write_failed
+  uint64 soundId     = 3;
+  uint64 messageId   = 4;
+  uint64 messageText = 5;
 }

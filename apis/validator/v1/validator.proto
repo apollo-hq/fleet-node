@@ -17,6 +17,10 @@ service Validator {
   // Validates a card (under the hood it will either buy a single day ticket 
   // or check whether user already has monthly ticket)
   rpc Validate(ValidateRequest) returns (ValidateResponse) {}
+
+  // GetStatus returns current status of the system. In normal operation VALIDATOR_STATUS_ACTIVE
+  // will be returned which means that it's okay to validate users
+  rpc GetStatus(StatusRequest) returns (StatusResponse) {}
 }
 
 message ValidationMessageRequest {}
@@ -102,10 +106,44 @@ message ListValidationErrorsResponse {
   repeated ValidationError errors = 1;
 }
 
+enum ValidationErrorReason {
+  // Errors encountered server side. In this case it won't mean much to the validator itself
+  // so soundId, messageId and messageText can be used to give feedback to the user
+  VALIDATION_ERROR_REASON_INTERNAL_SERVER    = 0; 
+  // Errors that might get encountered by the validator itself, for example
+  // after the validation when it's writing blockData to the sector and failing (user has
+  // taken back the card) - 
+  VALIDATION_ERROR_REASON_CARD_WRITE_FAILED  = 1; 
+  VALIDATION_ERROR_REASON_CARD_READ_FAILED   = 2;
+  VALIDATION_ERROR_REASON_UNKNOWN_CARD       = 3;
+  // TODO: add any other error types here that the validator client side
+  // might encounter
+}
+
 message ValidationError {
-  uint64 id          = 1;
-  string reason      = 2;  // example: card_write_failed
-  uint64 soundId     = 3;
-  uint64 messageId   = 4;
-  uint64 messageText = 5;
+  uint64                id          = 1;
+  ValidationErrorReason reason      = 2;  // example: VALIDATION_ERROR_REASON_CARD_WRITE_FAILED
+  uint64                soundId     = 3;
+  uint64                messageId   = 4;
+  uint64                messageText = 5;
+}
+
+message StatusRequest {}
+
+enum ValidatorStatus {
+  VALIDATOR_STATUS_UNKNOWN     = 0;
+  VALIDATOR_STATUS_ACTIVE      = 1;
+  VALIDATOR_STATUS_LOCKED      = 2;
+  VALIDATOR_STATUS_SUSPENDED   = 3;
+  VALIDATOR_STATUS_OFFLINE     = 4;
+}
+
+// StatusResponse is used by the node daemon to provide status
+// to the validator, based on which it would display some message
+// when it's operational and some other message when it's offline or 
+// locked by the inspector
+message StatusResponse {
+  ValidatorStatus status  = 1;
+  uint64 messageId        = 3; // which message image to show
+  string messageText      = 4; // optionally used together with the messageId
 }

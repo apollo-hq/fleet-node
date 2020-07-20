@@ -12,7 +12,7 @@ Services implemented by Apollo team:
 | apis/screen/       | Server    | Handles screen's touch events
 | apis/ui/           | Client    | Apollo daemon works as a client, sending display content and 'play sound' requests to the internal C++ GRPC service 
 
-Services implemented by 3rd party team:
+Services implemented by the 3rd party team:
 
 | Directory          | Type      |   Description
 |--------------------|-----------|--------------------

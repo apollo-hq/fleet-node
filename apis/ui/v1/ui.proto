@@ -1,4 +1,5 @@
-// Package screen_v1 implement
+// Package screen_v1 implements a service which allows Apollo daemon to control validator 
+// user interface
 syntax = "proto3";
 package github.com.apollohq.fleetnodedaemon.apis.ui_v1;
 

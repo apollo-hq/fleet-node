@@ -26,7 +26,9 @@ message ValidatorConfigurationResponse {
   bytes  readSectorKey  = 2;
   uint64 writeSector    = 3;
   bytes  writeSectorKey = 4;
-  int64 currentTime     = 5; // ns
+  // unixNano returns current time as a Unix time, the number of nanoseconds elapsed
+  // since January 1, 1970 UTC.
+  int64  unixNano       = 5;
 }
 
 // ValidateRequest is a request sent by the validator to the onboard node
@@ -58,20 +60,16 @@ message ValidateResponse {
 
 message StatusRequest {}
 
-enum ValidatorStatus {
-  VALIDATOR_STATUS_UNKNOWN     = 0;
-  VALIDATOR_STATUS_ACTIVE      = 1;
-  VALIDATOR_STATUS_LOCKED      = 2;
-  VALIDATOR_STATUS_SUSPENDED   = 3;
-  VALIDATOR_STATUS_OFFLINE     = 4;
-}
-
 // StatusResponse is used by the node daemon to provide status
-// to the validator, based on which it would display some message
-// when it's operational and some other message when it's offline or 
-// locked by the inspector
+// to the validator
 message StatusResponse {
-  ValidatorStatus status  = 1;
-  uint64 messageId        = 3; // which message image to show
-  string messageText      = 4; // optionally used together with the messageId
+  enum Status {
+    VALIDATOR_STATUS_UNKNOWN     = 0;
+    VALIDATOR_STATUS_ACTIVE      = 1;
+    VALIDATOR_STATUS_LOCKED      = 2;
+    VALIDATOR_STATUS_SUSPENDED   = 3;
+    VALIDATOR_STATUS_OFFLINE     = 4;
+  }  
+  Status status   = 1;  
+  string message  = 2; // optional, under normal circumstances it will be empty
 }

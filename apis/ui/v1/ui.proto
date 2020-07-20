@@ -1,0 +1,38 @@
+// Package screen_v1 implement
+syntax = "proto3";
+package github.com.apollohq.fleetnodedaemon.apis.ui_v1;
+
+// UserInterface implements a user interface service that can display HTML, 
+// play sounds and return current UI status.
+service UserInterface {
+  rpc Display(DisplayRequest) returns (DisplayResponse) {}
+  rpc PlaySound(PlaySoundRequest) returns (PlaySoundResponse) {}
+  rpc Status(StatusRequest) returns (StatusResponse) {}
+}
+
+message DisplayRequest {
+  string URI = 1;  
+}
+
+message DisplayResponse {}
+
+message PlaySoundRequest {
+  string URI = 2;
+}
+
+message PlaySoundResponse {}
+
+message StatusRequest {}
+
+message StatusResponse {
+  string CurrentURI   = 1; // Currently displayed unique resource identifier (URL or filepath)
+  
+  enum Status {
+    // 0 is reserved for unknown
+    UNKNOWN      = 0;
+    READY        = 1;
+    NOT_READY    = 2;
+  };
+  Status status      = 2;
+  string reason      = 3; // Reason to show if it's not ready 
+}

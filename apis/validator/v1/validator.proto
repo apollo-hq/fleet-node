@@ -1,16 +1,26 @@
-// package validator_v1 implements a validator <-> onboard PC communication
-// protocol. All RPC methods should be accompanied by a header with 
-// the validator ID. Calls that don't provide the header, will be rejected
+// package validator_v1 implements a validator communication protocol.
+// Validator firmware is implementing the server while Apollo daemon
+// implements the client.
 
 syntax = "proto3";
 package github.com.apollohq.fleetnodedaemon.apis.validator_v1;
 
 service Validator {
-  // Validates a card (under the hood it will either buy a single day ticket 
-  // or check whether user already has monthly ticket)
-  rpc Validate(ValidateRequest) returns (ValidateResponse) {}
+  // Stream card tap events
+  rpc StreamTapEvents(TapEventRequest) returns  (stream TapEvent) {}
 
+  // Display is used to request validator firmware to open an HTML link or just 
+  // display the given HTML contents.
+  rpc Display(DisplayHTMLRequest) returns (DisplayResponse) {}
+
+  // PlaySound is used to request validator firmware to play specified
+  // file through the internal speakers
+  rpc PlaySound(PlaySoundRequest) returns (PlaySoundResponse) {}
+
+  // GetConfiguration returns current validator firmware configuration. It includes information such 
+  // as read/write sector info.
   rpc GetConfiguration(ValidatorConfigurationRequest) returns (ValidatorConfigurationResponse) {}  
+
   // GetStatus returns current status of the system. In normal operation VALIDATOR_STATUS_ACTIVE
   // will be returned which means that it's okay to validate users
   rpc GetStatus(StatusRequest) returns (StatusResponse) {}
@@ -31,9 +41,11 @@ message ValidatorConfigurationResponse {
   int64  unixNano       = 5;
 }
 
+message TapEventRequest {}
+
 // ValidateRequest is a request sent by the validator to the onboard node
 // for the card/ticket validation
-message ValidateRequest {
+message TapEvent {
   string              identifier = 1; // mifare, for example '3059947987'
   enum Type {
     // 0 is reserved for unknown
@@ -46,23 +58,25 @@ message ValidateRequest {
   map<string, string> metadata   = 4; // gps coords, stop_id, distance, etc..
 }
 
-// ValidateResponse is a response returned by the onboard node to the validator
-message ValidateResponse {
-  enum Status {
-    // 0 is reserved for errors
-    UNKNOWN      = 0;
-    OK           = 1;
-    ERROR        = 2;
-    SERVER_ERROR = 3;
-  };
-  Status status      = 1; // generic status 
+message DisplayHTMLRequest {
+  string url      = 1;
+  bytes  contents = 2;
 }
+
+message DisplayResponse {}
+
+message PlaySoundRequest {
+  string filepath = 2;
+}
+
+message PlaySoundResponse {}
 
 message StatusRequest {}
 
 // StatusResponse is used by the node daemon to provide status
 // to the validator
 message StatusResponse {
+  string currentlyDisplaying     = 1; // Currently displayed (URL or filepath)
   enum Status {
     VALIDATOR_STATUS_UNKNOWN     = 0;
     VALIDATOR_STATUS_ACTIVE      = 1;
@@ -70,6 +84,6 @@ message StatusResponse {
     VALIDATOR_STATUS_SUSPENDED   = 3;
     VALIDATOR_STATUS_OFFLINE     = 4;
   }  
-  Status status   = 1;  
-  string message  = 2; // optional, under normal circumstances it will be empty
+  Status status   = 2;  
+  string message  = 3; // optional, under normal circumstances it will be empty
 }

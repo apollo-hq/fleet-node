@@ -6,8 +6,9 @@ syntax = "proto3";
 package github.com.apollohq.fleetnodedaemon.apis.validator_v1;
 
 service Validator {
-  // Stream card tap events
-  rpc StreamTapEvents(TapEventRequest) returns  (stream TapEvent) {}
+  // StreamReaderEvents is a subscrtption type handler where Apollo client subscribes
+  // to card tap events
+  rpc StreamReaderEvents(ReaderEventRequest) returns  (stream ReaderEvent) {}
 
   // Display is used to request validator firmware to open an HTML link or just 
   // display the given HTML contents.
@@ -17,16 +18,30 @@ service Validator {
   // file through the internal speakers
   rpc PlaySound(PlaySoundRequest) returns (PlaySoundResponse) {}
 
+  // SetConfiguration is used to set configuration such as read/write sectors and keys
+  // to the validator firmware.
+  rpc SetConfiguration(SetConfigureRequest) returns (ValidatorConfigurationResponse) {}
+
   // GetConfiguration returns current validator firmware configuration. It includes information such 
   // as read/write sector info.
-  rpc GetConfiguration(ValidatorConfigurationRequest) returns (ValidatorConfigurationResponse) {}  
+  rpc GetConfiguration(GetConfigurationRequest) returns (ValidatorConfigurationResponse) {}  
 
   // GetStatus returns current status of the system. In normal operation VALIDATOR_STATUS_ACTIVE
   // will be returned which means that it's okay to validate users
   rpc GetStatus(StatusRequest) returns (StatusResponse) {}
 }
 
-message ValidatorConfigurationRequest {}
+message SetConfigureRequest {
+  uint64 readSector     = 1;
+  bytes  readSectorKey  = 2;
+  uint64 writeSector    = 3;
+  bytes  writeSectorKey = 4;
+  // unixNano is current time as a Unix time, the number of nanoseconds elapsed
+  // since January 1, 1970 UTC.
+  int64  unixNano       = 5;
+}
+
+message GetConfigurationRequest {}
 
 // ValidatorConfigurationResponse is returned by the node
 // to validator to indicate which sector of the card to read during
@@ -36,25 +51,19 @@ message ValidatorConfigurationResponse {
   bytes  readSectorKey  = 2;
   uint64 writeSector    = 3;
   bytes  writeSectorKey = 4;
-  // unixNano returns current time as a Unix time, the number of nanoseconds elapsed
+  // unixNano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
   int64  unixNano       = 5;
 }
 
-message TapEventRequest {}
+message ReaderEventRequest {}
 
 // ValidateRequest is a request sent by the validator to the onboard node
 // for the card/ticket validation
-message TapEvent {
+message ReaderEvent {
   string              identifier = 1; // mifare, for example '3059947987'
-  enum Type {
-    // 0 is reserved for unknown
-    UNKNOWN      = 0;
-    MIFARE       = 1;
-    RFID         = 2;
-  };
-  Type                type       = 2; // token type (card, rfid)
-  bytes               blockData  = 3; // data read using info provided by ValidatorConfigurationResponse readSector & readSecodKey
+  bytes               blockData  = 2; // data read using info provided by ValidatorConfigurationResponse readSector & readSecodKey
+  int64               type       = 3; // type of the user device (unknown=0, mifare=1, desfire=2, etc.,).
   map<string, string> metadata   = 4; // gps coords, stop_id, distance, etc..
 }
 

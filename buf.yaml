@@ -1,0 +1,9 @@
+build:
+  roots:
+    - apis
+lint:
+  use:
+    - DEFAULT
+breaking:
+  use:
+    - WIRE_JSON

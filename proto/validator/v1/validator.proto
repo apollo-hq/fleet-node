@@ -5,6 +5,8 @@
 syntax = "proto3";
 package validator.v1;
 
+option go_package = "apis/validator/v1";
+
 service ValidatorService {
   // StreamReaderEvents is a subscrtption type handler where Apollo client subscribes
   // to card tap events

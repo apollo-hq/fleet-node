@@ -1,6 +1,6 @@
 # Validator services
 
-[![Actions Status](https://github.com/apollo-hq/fleet-node/workflows/build/badge.svg)](https://github.com/{user}/apollo-hq/fleet-node)
+[![Actions Status](https://github.com/apollo-hq/fleet-node/workflows/CI/badge.svg)](https://github.com/{user}/apollo-hq/fleet-node)
 
 
 This repository specifies shared protocol buffer schemas.

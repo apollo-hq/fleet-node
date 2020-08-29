@@ -10,6 +10,8 @@ service Validator {
   // to card tap events
   rpc StreamReaderEvents(ReaderEventRequest) returns  (stream ReaderEvent) {}
 
+  rpc CardWrite(CardWriteRequest) returns (CardWriteResponse) {}
+
   // Display is used to request validator firmware to open an HTML link or just 
   // display the given HTML contents.
   rpc Display(DisplayHTMLRequest) returns (DisplayResponse) {}
@@ -29,6 +31,32 @@ service Validator {
   // GetStatus returns current status of the system. In normal operation VALIDATOR_STATUS_ACTIVE
   // will be returned which means that it's okay to validate users
   rpc GetStatus(StatusRequest) returns (StatusResponse) {}
+}
+
+message ReaderEventRequest {}
+
+// ValidateRequest is a request sent by the validator to the onboard node
+// for the card/ticket validation
+message ReaderEvent {
+  string              identifier = 1; // mifare, for example '3059947987'
+  bytes               blockData  = 2; // data read using info provided by ValidatorConfigurationResponse readSector & readSecodKey
+  int64               type       = 3; // type of the user device (unknown=0, mifare=1, desfire=2, etc.,).
+  map<string, string> metadata   = 4; // gps coords, stop_id, distance, etc..
+}
+
+message CardWriteRequest {
+  bytes blockData = 1;
+}
+
+message CardWriteResponse {
+  enum WriteStatus {
+    CARD_WRITE_STATUS_UNKNOWN = 0;
+    CARD_WRITE_STATUS_SUCCESS = 1;
+    CARD_WRITE_STATUS_ERROR   = 2;
+  }  
+  WriteStatus status    = 1; // write status
+  int64       errorCode = 2; // error class code (permanent, transient, etc.)
+  string      message   = 3; // optional message for the error
 }
 
 message SetConfigureRequest {
@@ -54,17 +82,6 @@ message ValidatorConfigurationResponse {
   // unixNano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
   int64  unixNano       = 5;
-}
-
-message ReaderEventRequest {}
-
-// ValidateRequest is a request sent by the validator to the onboard node
-// for the card/ticket validation
-message ReaderEvent {
-  string              identifier = 1; // mifare, for example '3059947987'
-  bytes               blockData  = 2; // data read using info provided by ValidatorConfigurationResponse readSector & readSecodKey
-  int64               type       = 3; // type of the user device (unknown=0, mifare=1, desfire=2, etc.,).
-  map<string, string> metadata   = 4; // gps coords, stop_id, distance, etc..
 }
 
 message DisplayHTMLRequest {

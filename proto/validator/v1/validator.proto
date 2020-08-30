@@ -42,7 +42,7 @@ message StreamReaderEventsRequest {}
 message StreamReaderEventsResponse {
   string              identifier = 1;  // mifare, for example '3059947987'
   bytes               block_data = 2; // data read using info provided by GetConfigurationResponse readSector & readSecodKey
-  int64               type       = 3;  // type of the user device (unknown=0, mifare=1, desfire=2, etc.,).
+  int64               type       = 3;  // type of the user device (unspecified=0, mifare=1, desfire=2, etc.,).
   map<string, string> metadata   = 4;  // gps coords, stop_id, distance, etc..
 }
 

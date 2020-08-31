@@ -40,10 +40,18 @@ message StreamReaderEventsRequest {}
 // ValidateRequest is a request sent by the validator to the onboard node
 // for the card/ticket validation
 message StreamReaderEventsResponse {
-  string              identifier = 1;  // mifare, for example '3059947987'
-  bytes               block_data = 2; // data read using info provided by GetConfigurationResponse readSector & readSecodKey
-  int64               type       = 3;  // type of the user device (unspecified=0, mifare=1, desfire=2, etc.,).
-  map<string, string> metadata   = 4;  // gps coords, stop_id, distance, etc..
+  enum ReadEventType {
+    READ_EVENT_TYPE_UNSPECIFIED = 0;
+    READ_EVENT_TYPE_OK          = 1;
+    READ_EVENT_TYPE_ERROR       = 2;
+  }
+  ReadEventType       read_event_type = 1;
+  string              identifier      = 2;  // mifare, for example '3059947987'
+  bytes               block_data      = 3; // data read using info provided by GetConfigurationResponse readSector & readSecodKey
+  int64               type            = 4;  // type of the user device (unspecified=0, mifare=1, desfire=2, etc.,).
+  map<string, string> metadata        = 5;  // gps coords, stop_id, distance, etc..
+  int64               error_code      = 6; // error class code (failed to read)
+  string              error_message   = 7; // optional message for the error               
 }
 
 message CardWriteRequest {
@@ -56,9 +64,9 @@ message CardWriteResponse {
     WRITE_STATUS_SUCCESS     = 1;
     WRITE_STATUS_ERROR       = 2;
   }  
-  WriteStatus status    = 1; // write status
-  int64       error_code = 2; // error class code (permanent, transient, etc.)
-  string      message   = 3; // optional message for the error
+  WriteStatus status        = 1; // write status
+  int64       error_code    = 2; // error class code (permanent, transient, etc.)
+  string      error_message = 3; // optional message for the error
 }
 
 message SetConfigurationRequest {

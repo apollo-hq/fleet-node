@@ -118,9 +118,7 @@ message GetStatusResponse {
   enum Status {
     STATUS_UNSPECIFIED = 0;
     STATUS_ACTIVE      = 1;
-    STATUS_LOCKED      = 2;
-    STATUS_SUSPENDED   = 3;
-    STATUS_OFFLINE     = 4;
+    STATUS_INACTIVE    = 2;
   }  
   Status status   = 2;  
   string message  = 3; // optional, under normal circumstances it will be empty

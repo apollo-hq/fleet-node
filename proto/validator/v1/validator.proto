@@ -97,8 +97,7 @@ message GetConfigurationResponse {
 }
 
 message DisplayRequest {
-  string url      = 1;
-  bytes  contents = 2;
+  string url      = 1;  
 }
 
 message DisplayResponse {}

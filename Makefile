@@ -1,7 +1,7 @@
 SHELL := /usr/bin/env bash -o pipefail
 
 # This controls the location of the cache.
-PROJECT := buf-example
+PROJECT := fleet-node
 # This controls the remote HTTPS git location to compare against for breaking changes in CI.
 #
 # Most CI providers only clone the branch under test and to a certain depth, so when
@@ -9,7 +9,7 @@ PROJECT := buf-example
 # the remote repository directly.
 #
 # Basic authentication is available, see https://buf.build/docs/inputs#https for more details.
-HTTPS_GIT := https://github.com/bufbuild/buf-example.git
+HTTPS_GIT := https://github.com/apollo-hq/fleet-node.git
 # This controls the remote SSH git location to compare against for breaking changes in CI.
 #
 # CI providers will typically have an SSH key installed as part of your setup for both

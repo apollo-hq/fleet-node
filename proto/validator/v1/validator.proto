@@ -37,21 +37,36 @@ service ValidatorService {
 
 message StreamReaderEventsRequest {}
 
+// Identifiable card types
+enum CardType {
+  CARD_TYPE_UNSPECIFIED = 0;
+  CARD_TYPE_MIFARE4K    = 1;
+  CARD_TYPE_MIFARE1K    = 2;
+  CARD_TYPE_ULTRALIGHT  = 3;
+  CARD_TYPE_DESFIRE     = 4;
+  CARD_TYPE_PLUS        = 5;
+  CARD_TYPE_EMV         = 6;
+  CARD_TYPE_UNKNOWN     = 7;
+}
+
 // ValidateRequest is a request sent by the validator to the onboard node
 // for the card/ticket validation
 message StreamReaderEventsResponse {
   enum ReadEventType {
-    READ_EVENT_TYPE_UNSPECIFIED = 0;
-    READ_EVENT_TYPE_OK          = 1;
-    READ_EVENT_TYPE_ERROR       = 2;
+    READ_EVENT_TYPE_UNSPECIFIED         = 0;
+    READ_EVENT_TYPE_OK                  = 1; // all ok, block data ready
+    READ_EVENT_TYPE_UNSPECIFIED_ERROR   = 2; // any other error than the ones below
+    READ_EVENT_TYPE_UNKNOWN_CARD_TYPE   = 3; // not a Mifare 4k card
+    READ_EVENT_TYPE_WRONG_KEY           = 4; // auth failed, probably not "our" card 
+    READ_EVENT_TYPE_PERMISSIONS         = 5; // auth succeeded, but cannot read (incorrect card config)
+    READ_EVENT_TYPE_INVALID_DATA        = 6; // both blocks contain invalid data (new card or fraud)
   }
   ReadEventType       read_event_type = 1;
-  string              identifier      = 2;  // mifare, for example '3059947987'
+  bytes               identifier      = 2; // mifare, for example '3059947987'
   bytes               block_data      = 3; // data read using info provided by GetConfigurationResponse readSector & readSecodKey
-  int64               type            = 4;  // type of the user device (unspecified=0, mifare=1, desfire=2, etc.,).
-  map<string, string> metadata        = 5;  // gps coords, stop_id, distance, etc..
-  int64               error_code      = 6; // error class code (failed to read)
-  string              error_message   = 7; // optional message for the error               
+  CardType            type            = 4; // type of the user device
+  map<string, string> metadata        = 5; // gps coords, stop_id, distance, etc..
+  string              error_message   = 6; // optional message for the error               
 }
 
 message CardWriteRequest {
@@ -60,20 +75,20 @@ message CardWriteRequest {
 
 message CardWriteResponse {
   enum WriteStatus {
-    WRITE_STATUS_UNSPECIFIED = 0;
-    WRITE_STATUS_SUCCESS     = 1;
-    WRITE_STATUS_ERROR       = 2;
+    WRITE_STATUS_UNSPECIFIED       = 0;
+    WRITE_STATUS_SUCCESS           = 1;
+    WRITE_STATUS_UNSPECIFIED_ERROR = 2;
+    WRITE_STATUS_WRONG_PERMISSIONS = 3;
   }  
   WriteStatus status        = 1; // write status
-  int64       error_code    = 2; // error class code (permanent, transient, etc.)
-  string      error_message = 3; // optional message for the error
+  string      error_message = 2; // optional message for the error
 }
 
 message SetConfigurationRequest {
-  uint64 read_sector     = 1;
-  bytes  read_sector_key  = 2;
-  uint64 write_sector    = 3;
-  bytes  write_sector_key = 4;
+  uint64 sector          = 1;
+  uint64 primary_block   = 2;
+  uint64 secondary_block = 3;
+  bytes  sector_key      = 4;
   // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
   int64  unix_nano       = 5;
@@ -87,10 +102,10 @@ message GetConfigurationRequest {}
 // to validator to indicate which sector of the card to read during
 // the validation
 message GetConfigurationResponse {
-  uint64 read_sector     = 1;
-  bytes  read_sector_key  = 2;
-  uint64 write_sector    = 3;
-  bytes  write_sector_key = 4;
+  uint64 sector          = 1;
+  uint64 primary_block   = 2;
+  uint64 secondary_block = 3;
+  bytes  sector_key      = 4;
   // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
   int64  unix_nano       = 5;
@@ -113,12 +128,12 @@ message GetStatusRequest {}
 // GetStatusResponse is used by the node daemon to provide status
 // to the validator
 message GetStatusResponse {
-  string currently_displaying     = 1; // Currently displayed (URL or filepath)
   enum Status {
     STATUS_UNSPECIFIED = 0;
     STATUS_ACTIVE      = 1;
     STATUS_INACTIVE    = 2;
-  }  
-  Status status   = 2;  
-  string message  = 3; // optional, under normal circumstances it will be empty
+  }
+  string currently_displaying     = 1; // Currently displayed (URL or filepath)
+  Status status                   = 2;  
+  string message                  = 3; // optional, under normal circumstances it will be empty
 }

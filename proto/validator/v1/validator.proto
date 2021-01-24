@@ -33,6 +33,8 @@ service ValidatorService {
   // GetStatus returns current status of the system. In normal operation VALIDATOR_STATUS_ACTIVE
   // will be returned which means that it's okay to validate users
   rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {}
+
+  rpc RestartCardReader(RestartCardReaderRequest) returns (RestartCardReaderResponse) {}
 }
 
 message StreamReaderEventsRequest {}
@@ -137,3 +139,6 @@ message GetStatusResponse {
   Status status                   = 2;  
   string message                  = 3; // optional, under normal circumstances it will be empty
 }
+
+message RestartCardReaderRequest {}
+message RestartCardReaderResponse {}

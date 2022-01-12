@@ -68,11 +68,13 @@ message StreamReaderEventsResponse {
   bytes               block_data      = 3; // data read using info provided by GetConfigurationResponse readSector & readSecodKey
   CardType            type            = 4; // type of the user device
   map<string, string> metadata        = 5; // gps coords, stop_id, distance, etc..
-  string              error_message   = 6; // optional message for the error               
+  string              error_message   = 6; // optional message for the error
+  string              tx_id           = 7; // tx_id of the request, used for testing          
 }
 
 message CardWriteRequest {
-  bytes block_data = 1;
+  bytes  block_data = 1;
+  string tx_id      = 2;
 }
 
 message CardWriteResponse {
@@ -114,13 +116,15 @@ message GetConfigurationResponse {
 }
 
 message DisplayRequest {
-  string url      = 1;  
+  string url      = 1;
+  string tx_id    = 2;
 }
 
 message DisplayResponse {}
 
 message PlaySoundRequest {
   string filepath = 2;
+  string tx_id    = 3;
 }
 
 message PlaySoundResponse {}

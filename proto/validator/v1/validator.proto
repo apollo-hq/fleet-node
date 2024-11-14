@@ -1,7 +1,7 @@
 // package validator_v1 implements a validator communication protocol.
 // Validator firmware is implementing the server while TS daemon
 // implements the client.
-// TODO 874: version 1.0.2
+// TODO 874: version 1.0.3
 
 syntax = "proto3";
 package validator.v1;
@@ -112,9 +112,7 @@ message SetConfigurationRequest {
   // since January 1, 1970 UTC.
   int64  unix_nano = 5;
   int64 nfc_write_timeout_ms = 6; // TODO 874: TLU: naming? For non EMV cards how long to wait for CardWrite event.
-  // If set to `true` - EMV APP might be activated/deactivated.
-  bool emv_enable = 7;
-  int64 emv_tap_callback_timeout_ms = 8; // TODO 874: naming? HOw many milliseconds to wait for ProcessEmvCard event.
+  int64 emv_tap_callback_timeout_ms = 7; // TODO 874: naming? HOw many milliseconds to wait for ProcessEmvCard event.
 }
 
 message SetConfigurationResponse {}
@@ -142,9 +140,14 @@ message GetConfigurationResponse {
   // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
   int64  unix_nano = 5;
-  bool emv_enabled = 6;
+  string validator_id = 10; // TODO 874: 1.0.3 - value should come from VALIDATOR APP?
+  string validator_software_version = 11; // TODO 874: 1.0.3 - value should come from VALIDATOR APP?
+  int64 nfc_write_timeout_ms = 6; // TODO 874: TLU: naming? For non EMV cards how long to wait for CardWrite event.
+  int64 emv_tap_callback_timeout_ms = 7; // TODO 874: naming? HOw many milliseconds to wait for ProcessEmvCard event.
+  // If set to `true` - EMV APP might be activated/deactivated.
+  bool emv_supported = 8; // TODO 874: 1.0.3 - value should come from VALIDATOR APP (maybe its better to have it in the status?)
   // This should be populated only if validator app emv_enabled=true.
-  EmvApplicationConfigs emv_configs = 7;
+  EmvApplicationConfigs emv_configs = 9; // TODO 874: 1.0.3
 }
 
 message DisplayRequest {
@@ -164,7 +167,7 @@ message PlaySoundResponse {}
 message EmvApplicationStatusResponse {
   EmvApplicationStatus status = 1;
   string message = 2; // optional: under normal circumstances it will be empty.
-  EmvApplicationConfigs configs = 3;
+  EmvApplicationConfigs configs = 3; // TODO 874: 1.0.3 - does it really required? Maybe only status of EMV-APP is required.
 }
 
 message GetStatusRequest {}
@@ -176,6 +179,7 @@ message GetStatusResponse {
     STATUS_UNSPECIFIED = 0;
     STATUS_ACTIVE = 1;
     STATUS_INACTIVE = 2;
+    STATUS_ACTIVATING_EMV = 3; // TODO 874: 1.0.3
   }
   string currently_displaying = 1; // Currently displayed (URL or filepath)
   Status status = 2;

@@ -193,12 +193,12 @@ message RestartCardReaderResponse {}
 // ---------------------------------
 
 enum EmvApplicationStatus {
-  STATUS_UNSPECIFIED = 0;
-  STATUS_ACTIVE = 1; // Means that it is controlling NFC.
-  STATUS_INACTIVE = 2; // Means that it is NOT controlling NFC.
-  STATUS_ERROR = 3;
-  STATUS_STARTING = 4; //TODO 874: maybe it should be STATUS_INACTIVE
-  STATUS_UPDATING = 5; //TODO 874: maybe it should be STATUS_INACTIVE
+  EMV_APPLICATION_STATUS_STATUS_UNSPECIFIED = 0;
+  EMV_APPLICATION_STATUS_STATUS_ACTIVE = 1; // Means that it is controlling NFC.
+  EMV_APPLICATION_STATUS_STATUS_INACTIVE = 2; // Means that it is NOT controlling NFC.
+  EMV_APPLICATION_STATUS_STATUS_ERROR = 3;
+  EMV_APPLICATION_STATUS_STATUS_STARTING = 4; //TODO 874: maybe it should be STATUS_INACTIVE
+  EMV_APPLICATION_STATUS_STATUS_UPDATING = 5; //TODO 874: maybe it should be STATUS_INACTIVE
 }
 
 message EmvApplicationRequest {

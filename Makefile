@@ -77,8 +77,8 @@ deps: $(BUF)
 
 .PHONY: local
 local: $(BUF)
-	buf check lint
-	buf check breaking --against-input '.git#branch=master'
+	buf lint
+	buf breaking --against-input '.git#branch=master'
 
 # clean deletes any files not checked in and the cache for all platforms.
 

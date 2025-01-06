@@ -1,7 +1,6 @@
 // package validator_v1 implements a validator communication protocol.
-// Validator firmware is implementing the server while TS daemon
+// Validator firmware is implementing the server while Apollo daemon
 // implements the client.
-// TODO 874: version 1.0.3
 
 syntax = "proto3";
 package validator.v1;
@@ -15,7 +14,7 @@ service ValidatorService {
 
   rpc CardWrite(CardWriteRequest) returns (CardWriteResponse) {}
 
-  // Display is used to request validator firmware to open an HTML link or just 
+  // Display is used to request validator firmware to open an HTML link or just
   // display the given HTML contents.
   rpc Display(DisplayRequest) returns (DisplayResponse) {}
 
@@ -24,11 +23,11 @@ service ValidatorService {
   rpc PlaySound(PlaySoundRequest) returns (PlaySoundResponse) {}
 
   // SetConfiguration is used to set configuration such as read/write sectors and keys
-  // to the validator firmware. Also it will enable/disable EMV application.
+  // to the validator firmware.
   rpc SetConfiguration(SetConfigurationRequest) returns (SetConfigurationResponse) {}
 
-  // GetConfiguration returns current validator firmware configuration. It includes information such 
-  // as read/write sector info, is EMV enabled flag.
+  // GetConfiguration returns current validator firmware configuration. It includes information such
+  // as read/write sector info.
   rpc GetConfiguration(GetConfigurationRequest) returns (GetConfigurationResponse) {}
 
   // GetStatus returns current status of the system. In normal operation VALIDATOR_STATUS_ACTIVE
@@ -37,13 +36,8 @@ service ValidatorService {
 
   rpc RestartCardReader(RestartCardReaderRequest) returns (RestartCardReaderResponse) {}
 
-  // EMV service related procedures
-  // -----------------------------------------------
+  rpc Restart(RestartRequest) returns (RestartResponse) {}
 
-  // EmvApplication - will activate/deactivate EMV application.
-  rpc EmvApplication(EmvApplicationRequest) returns (EmvApplicationResponse) {}
-
-  // ProcessEmvCard should initiate new EMV transaction.
   rpc ProcessEmvCard(ProcessEmvCardRequest) returns (ProcessEmvCardResponse) {}
 }
 
@@ -52,178 +46,132 @@ message StreamReaderEventsRequest {}
 // Identifiable card types
 enum CardType {
   CARD_TYPE_UNSPECIFIED = 0;
-  CARD_TYPE_MIFARE4K = 1;
-  CARD_TYPE_MIFARE1K = 2;
-  CARD_TYPE_ULTRALIGHT = 3;
-  CARD_TYPE_DESFIRE = 4;
-  CARD_TYPE_PLUS = 5;
-  CARD_TYPE_EMV = 6;
-  CARD_TYPE_UNKNOWN = 7;
-  CARD_TYPE_BARCODE = 8;
-  CARD_TYPE_EMV_VIRTUAL = 9; // TODO 874: maybe not be required? Confirm with +Monet.
+  CARD_TYPE_MIFARE4K    = 1;
+  CARD_TYPE_MIFARE1K    = 2;
+  CARD_TYPE_ULTRALIGHT  = 3;
+  CARD_TYPE_DESFIRE     = 4;
+  CARD_TYPE_PLUS        = 5;
+  CARD_TYPE_EMV         = 6;
+  CARD_TYPE_UNKNOWN     = 7;
 }
 
 // ValidateRequest is a request sent by the validator to the onboard node
 // for the card/ticket validation
 message StreamReaderEventsResponse {
   enum ReadEventType {
-    READ_EVENT_TYPE_UNSPECIFIED = 0;
-    READ_EVENT_TYPE_OK = 1; // all ok, block data ready
-    READ_EVENT_TYPE_UNSPECIFIED_ERROR = 2; // any other event type than the ones below
-    READ_EVENT_TYPE_UNKNOWN_CARD_TYPE = 3; // not a Mifare 4k card
-    READ_EVENT_TYPE_WRONG_KEY = 4; // auth failed, probably not "our" card
-    READ_EVENT_TYPE_PERMISSIONS = 5; // auth succeeded, but cannot read (incorrect card config)
-    READ_EVENT_TYPE_INVALID_DATA = 6; // both blocks contain invalid data (new card or fraud)
-    READ_EVENT_TYPE_EMV_TAP = 7; // TODO 874: E5 step; Need to have some TIME_OUT for the processing EMV TAP call step.E7.
-    READ_EVENT_TYPE_EMV_TAP_ERROR = 8; // TODO 874: E4 with error, `error_message` should contain error. Maybe enough `READ_EVENT_TYPE_UNSPECIFIED_ERROR`.
-    READ_EVENT_TYPE_EMV_TX = 9; // TODO 874: After verification with Monet+ if possible to get EMV TX processing progress (simulated 4 led lams).
+    READ_EVENT_TYPE_UNSPECIFIED         = 0;
+    READ_EVENT_TYPE_OK                  = 1; // all ok, mifare: block data ready / emv: transaction successful
+    READ_EVENT_TYPE_UNSPECIFIED_ERROR   = 2; // any other error than the ones below
+    READ_EVENT_TYPE_UNKNOWN_CARD_TYPE   = 3; // not a Mifare 4k card
+    READ_EVENT_TYPE_WRONG_KEY           = 4; // auth failed, probably not "our" card
+    READ_EVENT_TYPE_PERMISSIONS         = 5; // auth succeeded, but cannot read (incorrect card config)
+    READ_EVENT_TYPE_INVALID_DATA        = 6; // both blocks contain invalid data (new card or fraud)
+    READ_EVENT_TYPE_EMV_TAP             = 7; // emv card detected
   }
   ReadEventType       read_event_type = 1;
-  bytes               identifier = 2; // mifare for example '3059947987' or TODO 874: maybe EMV card ID - provided by validator
-  bytes               block_data = 3; // nonEMV only: data read using info provided by GetConfigurationResponse readSector & readSecodKey
-  CardType            type = 4; // type of the user device
-  map<string, string> metadata = 5; // gps coords, stop_id, distance, etc..
-  string              error_message = 6; // optional message for the error
-  string              tx_id = 7; // tx_id of the request, used by EMV tap events to uniquely identify TAP.
+  bytes               identifier      = 2; // mifare: uid / emv: token
+  bytes               block_data      = 3; // mifare: data read using info provided by GetConfigurationResponse readSector & readSecodKey / emv: empty
+  CardType            type            = 4; // type of the user device
+  map<string, string> metadata        = 5; // gps coords, stop_id, distance, etc..
+  string              error_message   = 6; // optional message for the error
+  string              session_id      = 7; // mifare: empty / emv: session ud (uuid) generated by validator
 }
 
 message CardWriteRequest {
-  bytes  block_data = 1;
-  string tx_id = 2;
+  bytes block_data = 1;
+  string session_id = 7; // private/TA-internal/emv-only: session id from StreamReaderEventsResponse
 }
 
 message CardWriteResponse {
   enum WriteStatus {
-    WRITE_STATUS_UNSPECIFIED = 0;
-    WRITE_STATUS_SUCCESS = 1;
+    WRITE_STATUS_UNSPECIFIED       = 0;
+    WRITE_STATUS_SUCCESS           = 1;
     WRITE_STATUS_UNSPECIFIED_ERROR = 2;
     WRITE_STATUS_WRONG_PERMISSIONS = 3;
   }
-  WriteStatus status = 1; // write status
+  WriteStatus status        = 1; // write status
   string      error_message = 2; // optional message for the error
 }
 
 message SetConfigurationRequest {
-  uint64 sector = 1;
-  uint64 primary_block = 2;
+  uint64 sector          = 1;
+  uint64 primary_block   = 2;
   uint64 secondary_block = 3;
-  bytes  sector_key = 4;
+  bytes  sector_key      = 4;
   // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
-  int64  unix_nano = 5;
-  int64 nfc_write_timeout_ms = 6; // TODO 874: TLU: naming? For non EMV cards how long to wait for CardWrite event.
-  int64 emv_tap_callback_timeout_ms = 7; // TODO 874: naming? HOw many milliseconds to wait for ProcessEmvCard event.
+  int64  unix_nano       = 5;
+  int64 nfc_write_timeout_ms = 6;
+  int64 emv_tap_callback_timeout_ms = 7;
 }
 
 message SetConfigurationResponse {}
 
 message GetConfigurationRequest {}
 
-// EmvApplicationConfigs -useful for logging or for meta details about EMV transaction.
-message EmvApplicationConfigs {
-  // EMV application configs
-  // TODO 874 - TBD at development stage by Petr.
-  string id = 1; // EMV terminal application identifier e.g. terminal identifier. Should be unique.
-  string version = 2; // EMV terminal application version.
-  int64 unix_nano = 3; // EMV application time as a Unix time.
-  map<string, string> metadata = 5; // optional: should contain non secured configs e.g. last blacklisted cards synchronisation time, last (re)start time etc.
-}
-
 // GetConfigurationResponse is returned by the node
 // to validator to indicate which sector of the card to read during
 // the validation
 message GetConfigurationResponse {
-  uint64 sector = 1;
-  uint64 primary_block = 2;
+  uint64 sector          = 1;
+  uint64 primary_block   = 2;
   uint64 secondary_block = 3;
-  bytes  sector_key = 4;
+  bytes  sector_key      = 4;
   // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
-  int64  unix_nano = 5;
-  string validator_id = 10; // TODO 874: 1.0.3 - value should come from VALIDATOR APP?
-  string validator_software_version = 11; // TODO 874: 1.0.3 - value should come from VALIDATOR APP?
-  int64 nfc_write_timeout_ms = 6; // TODO 874: TLU: naming? For non EMV cards how long to wait for CardWrite event.
-  int64 emv_tap_callback_timeout_ms = 7; // TODO 874: naming? HOw many milliseconds to wait for ProcessEmvCard event.
-  // If set to `true` - EMV APP might be activated/deactivated.
-  bool emv_supported = 8; // TODO 874: 1.0.3 - value should come from VALIDATOR APP (maybe its better to have it in the status?)
-  // This should be populated only if validator app emv_enabled=true.
-  EmvApplicationConfigs emv_configs = 9; // TODO 874: 1.0.3
+  int64  unix_nano       = 5; // superseded by GetStatusResponse.unix_nano
+  int64 nfc_write_timeout_ms = 6;
+  int64 emv_tap_callback_timeout_ms = 7;
 }
 
 message DisplayRequest {
-  string url = 1;
-  string tx_id = 2;
+  string url      = 1;
+  string session_id = 2; // private/TA-internal/emv-only: session id from StreamReaderEventsResponse
 }
 
 message DisplayResponse {}
 
 message PlaySoundRequest {
   string filepath = 2;
-  string tx_id = 3;
+  string session_id = 3; // private/TA-internal/emv-only: session id from StreamReaderEventsResponse
 }
 
 message PlaySoundResponse {}
 
-message EmvApplicationStatusResponse {
-  EmvApplicationStatus status = 1;
-  string message = 2; // optional: under normal circumstances it will be empty.
-  EmvApplicationConfigs configs = 3; // TODO 874: 1.0.3 - does it really required? Maybe only status of EMV-APP is required.
-}
-
 message GetStatusRequest {}
+
+message EmvStatus {
+  string terminal_id = 1; // emv terminal identifier
+  string bank_app_version = 2; // emv terminal bank application version.
+  string maintenance_app_version = 2; // emv terminal maintenance application version.
+  int64 unix_nano = 3; // emv terminal current system date/time.
+  map<string, string> metadata = 5; // ?? optional: should contain non secured configs e.g. last blacklisted cards synchronisation time, last (re)start time etc.
+}
 
 // GetStatusResponse is used by the node daemon to provide status
 // to the validator
 message GetStatusResponse {
   enum Status {
     STATUS_UNSPECIFIED = 0;
-    STATUS_ACTIVE = 1;
-    STATUS_INACTIVE = 2;
-    STATUS_ACTIVATING_EMV = 3; // TODO 874: 1.0.3
+    STATUS_ACTIVE      = 1;
+    STATUS_INACTIVE    = 2;
+    STATUS_STARTING    = 3; // until the SetConfiguration is called
   }
-  string currently_displaying = 1; // Currently displayed (URL or filepath)
-  Status status = 2;
-  string message = 3; // optional, under normal circumstances it will be empty
-
-  // EmvApplicationStatusResponse should be populated only if validator APP `emv_enabled=true`.
-  EmvApplicationStatusResponse emv_app_status = 4;
+  string currently_displaying     = 1; // Currently displayed (URL or filepath)
+  Status status                   = 2;
+  string message                  = 3; // optional, under normal circumstances it will be empty
+  int64  unix_nano                  = 4; // validator current system date/time
+  string validator_id               = 5; // validator unique-id/serial-no
+  string validator_software_version = 6; // validator app-version
+  EmvStatus emv_configs             = 7; // emv status
 }
 
 message RestartCardReaderRequest {}
 message RestartCardReaderResponse {}
 
-// ---------------------------------
-// EMV service related
-// ---------------------------------
+message Restart {}
+message Restart {}
 
-enum EmvApplicationStatus {
-  EMV_APPLICATION_STATUS_STATUS_UNSPECIFIED = 0;
-  EMV_APPLICATION_STATUS_STATUS_ACTIVE = 1; // Means that it is controlling NFC.
-  EMV_APPLICATION_STATUS_STATUS_INACTIVE = 2; // Means that it is NOT controlling NFC.
-  EMV_APPLICATION_STATUS_STATUS_ERROR = 3;
-  EMV_APPLICATION_STATUS_STATUS_STARTING = 4; //TODO 874: maybe it should be STATUS_INACTIVE
-  EMV_APPLICATION_STATUS_STATUS_UPDATING = 5; //TODO 874: maybe it should be STATUS_INACTIVE
-}
-
-message EmvApplicationRequest {
-  enum Action {
-    ACTION_UNSPECIFIED = 0;
-    ACTION_ACTIVATE = 1;
-    ACTION_DEACTIVATE = 2;
-    ACTION_UPDATE = 3; // FIXME 874: Petr should be removed?
-    ACTION_RESTART = 4; // FIXME 874: Petr should be removed?
-    ACTION_SUSPEND = 5; // FIXME 874: Petr should be removed? During the inspection - disable the EMV-APP.
-  }
-  Action action = 1;
-}
-
-message EmvApplicationResponse {
-  EmvApplicationStatus status = 1;
-  string message = 2; // Optional: on error
-}
-
-
-// ProcessEmvCardRequest represents EMV process request.
 message ProcessEmvCardRequest {
   enum Action {
     ACTION_UNSPECIFIED = 0;
@@ -231,22 +179,8 @@ message ProcessEmvCardRequest {
     ACTION_IGNORE = 2;
   }
   Action action = 1;
-  string tx_id = 2; // Provided in EMV_TAP event.
-  bytes fare_data = 3; // Base64 encoded backoffice known structure.
+  string session_id = 2; // session id from StreamReaderEventsResponse
+  bytes fare_data = 3; // backoffice known structure (binary byte array)
 }
 
-message ProcessEmvCardResponse {
-  enum Status {
-    STATUS_UNSPECIFIED = 0;
-    STATUS_OK = 1; // all ok, block data ready
-    STATUS_ERROR = 2; // any error other than the ones below
-    STATUS_ERROR_CARD_BLOCKED = 3; // TODO 874: maybe some other errors which might be useful for the passenger.
-  }
-  Status              status = 1;
-  string              emv_tx_id = 2;  // emv_tx_id - uniquely identifies EMV tx. TODO 874: bytes vs string.
-  bytes               identifier = 3; // EMV card identifier
-  map<string, string> metadata = 5;   // TODO 874: might include configuration of EMV APP
-  string              error_message = 6; // optional message for the error
-}
-
-
+message ProcessEmvCardResponse {}

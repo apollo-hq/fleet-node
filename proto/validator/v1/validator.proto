@@ -53,7 +53,7 @@ enum CardType {
   CARD_TYPE_PLUS        = 5;
   CARD_TYPE_EMV         = 6;
   CARD_TYPE_UNKNOWN     = 7;
-  CARD_TYPE_BARCODE = 8;
+  CARD_TYPE_BARCODE     = 8;
 }
 
 // ValidateRequest is a request sent by the validator to the onboard node
@@ -168,7 +168,7 @@ message GetStatusResponse {
   int64  unix_nano                  = 4; // validator current system date/time
   string validator_id               = 5; // validator unique-id/serial-no
   string validator_software_version = 6; // validator app-version
-  EmvStatus emv_configs             = 7; // emv status
+  EmvStatus emv_status              = 7; // emv status
 }
 
 message RestartCardReaderRequest {}

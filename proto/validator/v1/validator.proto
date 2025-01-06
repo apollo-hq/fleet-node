@@ -124,7 +124,8 @@ message GetConfigurationResponse {
   // since January 1, 1970 UTC.
   int64  unix_nano       = 5; // superseded by GetStatusResponse.unix_nano
   int64 nfc_write_timeout_ms = 6;
-  int64 emv_tap_callback_timeout_ms = 7;
+  bool emv_enabled = 7; // TODO 874 TLU: `true` if EMV is enabled.
+  int64 emv_tap_callback_timeout_ms = 8;
 }
 
 message DisplayRequest {

@@ -53,6 +53,7 @@ enum CardType {
   CARD_TYPE_PLUS        = 5;
   CARD_TYPE_EMV         = 6;
   CARD_TYPE_UNKNOWN     = 7;
+  CARD_TYPE_BARCODE = 8;
 }
 
 // ValidateRequest is a request sent by the validator to the onboard node
@@ -101,8 +102,8 @@ message SetConfigurationRequest {
   // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
   int64  unix_nano       = 5;
-  int64 nfc_write_timeout_ms = 6;
-  int64 emv_tap_callback_timeout_ms = 7;
+  int64 nfc_write_timeout_ms = 6; // For non EMV cards how long to wait for CardWrite event.
+  int64 emv_tap_callback_timeout_ms = 7; // How many milliseconds to wait for ProcessEmvCard event.
 }
 
 message SetConfigurationResponse {}
@@ -143,8 +144,8 @@ message GetStatusRequest {}
 message EmvStatus {
   string terminal_id = 1; // emv terminal identifier
   string bank_app_version = 2; // emv terminal bank application version.
-  string maintenance_app_version = 2; // emv terminal maintenance application version.
-  int64 unix_nano = 3; // emv terminal current system date/time.
+  string maintenance_app_version = 3; // emv terminal maintenance application version.
+  int64 unix_nano = 4; // emv terminal current system date/time.
   map<string, string> metadata = 5; // ?? optional: should contain non secured configs e.g. last blacklisted cards synchronisation time, last (re)start time etc.
 }
 
@@ -169,8 +170,8 @@ message GetStatusResponse {
 message RestartCardReaderRequest {}
 message RestartCardReaderResponse {}
 
-message Restart {}
-message Restart {}
+message RestartRequest {}
+message RestartResponse {}
 
 message ProcessEmvCardRequest {
   enum Action {

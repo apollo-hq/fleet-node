@@ -185,7 +185,7 @@ message ProcessEmvCardRequest {
   }
   Action action = 1;
   string session_id = 2; // session id from StreamReaderEventsResponse
-  bytes fare_data = 3; // backoffice known structure (binary byte array)
+  bytes trip_data = 3; // backoffice known structure (binary byte array)
 }
 
 message ProcessEmvCardResponse {}

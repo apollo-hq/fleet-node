@@ -80,7 +80,7 @@ message StreamReaderEventsResponse {
 
 message CardWriteRequest {
   bytes block_data  = 1;
-  string session_id = 3; // private/TA-internal/emv-only: session id from StreamReaderEventsResponse
+  string session_id = 2; // private/TA-internal/emv-only: session id from StreamReaderEventsResponse
 }
 
 message CardWriteResponse {

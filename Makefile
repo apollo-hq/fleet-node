@@ -20,7 +20,7 @@ HTTPS_GIT := https://github.com/apollo-hq/fleet-node.git
 # See https://buf.build/docs/inputs#ssh for more details.
 # SSH_GIT := ssh://git@github.com/bufbuild/buf-example.git
 # This controls the version of buf to install and use.
-BUF_VERSION := 0.20.5
+BUF_VERSION := 1.49.0
 # If true, Buf is installed from source instead of from releases
 BUF_INSTALL_FROM_SOURCE := false
 
@@ -77,8 +77,8 @@ deps: $(BUF)
 
 .PHONY: local
 local: $(BUF)
-	buf check lint
-	buf check breaking --against-input '.git#branch=master'
+	buf lint
+	buf breaking --against '.git#branch=master'
 
 # clean deletes any files not checked in and the cache for all platforms.
 

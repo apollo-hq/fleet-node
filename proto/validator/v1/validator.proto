@@ -70,12 +70,12 @@ message StreamReaderEventsResponse {
   CardType            type            = 4; // type of the user device
   map<string, string> metadata        = 5; // gps coords, stop_id, distance, etc..
   string              error_message   = 6; // optional message for the error
-  string              tx_id           = 7; // tx_id of the request, used for testing          
+  string              session_id      = 7; // session_id of the request
 }
 
 message CardWriteRequest {
   bytes  block_data = 1;
-  string tx_id      = 2;
+  string session_id = 2;
 }
 
 message CardWriteResponse {
@@ -117,15 +117,15 @@ message GetConfigurationResponse {
 }
 
 message DisplayRequest {
-  string url      = 1;
-  string tx_id    = 2;
+  string url        = 1;
+  string session_id = 2;
 }
 
 message DisplayResponse {}
 
 message PlaySoundRequest {
-  string filepath = 2;
-  string tx_id    = 3;
+  string filepath   = 2;
+  string session_id = 3;
 }
 
 message PlaySoundResponse {}

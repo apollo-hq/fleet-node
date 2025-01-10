@@ -4,7 +4,7 @@ build:
     - proto
 lint:
   use:
-    - DEFAULT
+    - STANDARD
 breaking:
   use:
     - WIRE_JSON

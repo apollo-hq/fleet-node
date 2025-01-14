@@ -60,14 +60,17 @@ enum CardType {
 // for the card/ticket validation
 message StreamReaderEventsResponse {
   enum ReadEventType {
-    READ_EVENT_TYPE_UNSPECIFIED         = 0;
-    READ_EVENT_TYPE_OK                  = 1; // all ok, mifare: block data ready / emv: transaction successful
-    READ_EVENT_TYPE_UNSPECIFIED_ERROR   = 2; // any other error than the ones below
-    READ_EVENT_TYPE_UNKNOWN_CARD_TYPE   = 3; // not a Mifare 4k card
-    READ_EVENT_TYPE_WRONG_KEY           = 4; // auth failed, probably not "our" card
-    READ_EVENT_TYPE_PERMISSIONS         = 5; // auth succeeded, but cannot read (incorrect card config)
-    READ_EVENT_TYPE_INVALID_DATA        = 6; // both blocks contain invalid data (new card or fraud)
-    READ_EVENT_TYPE_EMV_TAP             = 7; // emv card detected
+    READ_EVENT_TYPE_UNSPECIFIED                 = 0;
+    READ_EVENT_TYPE_OK                          = 1; // all ok, mifare: block data ready / emv: transaction successful
+    READ_EVENT_TYPE_UNSPECIFIED_ERROR           = 2; // any other error than the ones below
+    READ_EVENT_TYPE_UNKNOWN_CARD_TYPE           = 3; // not a Mifare 4k card
+    READ_EVENT_TYPE_WRONG_KEY                   = 4; // auth failed, probably not "our" card
+    READ_EVENT_TYPE_PERMISSIONS                 = 5; // auth succeeded, but cannot read (incorrect card config)
+    READ_EVENT_TYPE_INVALID_DATA                = 6; // both blocks contain invalid data (new card or fraud)
+    READ_EVENT_TYPE_EMV_TAP                     = 7; // emv card detected
+    READ_EVENT_TYPE_EMV_ERROR_CARD_NOT_VERIFIED = 8; // emv processing error: B-proto -02 - Card has not been verified
+    READ_EVENT_TYPE_EMV_ERROR_CARD_EXPIRED      = 9; // emv processing error: B-proto -10 - Card expired
+    READ_EVENT_TYPE_EMV_ERROR_CARD_ON_DENY_LIST = 10; // emv processing error: B-proto -10 - Card expired
   }
   ReadEventType       read_event_type = 1;
   bytes               identifier      = 2; // mifare: uid / emv: token

@@ -105,7 +105,7 @@ message SetConfigurationRequest {
   // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
   // since January 1, 1970 UTC.
   int64  unix_nano       = 5;
-  int64 nfc_write_timeout_ms = 6; // For non EMV cards how long to wait for CardWrite event.
+  int64 nfc_write_timeout_ms = 6; // For non EMV cards how long to wait for CardWrite event if needed. TODO 874: naming?
   int64 emv_tap_callback_timeout_ms = 7; // How many milliseconds to wait for ProcessEmvCard event.
 }
 

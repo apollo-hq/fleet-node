@@ -70,7 +70,7 @@ message StreamReaderEventsResponse {
     READ_EVENT_TYPE_EMV_TAP                     = 7; // emv card detected
     READ_EVENT_TYPE_EMV_ERROR_CARD_NOT_VERIFIED = 8; // emv processing error: B-proto -02 - Card has not been verified
     READ_EVENT_TYPE_EMV_ERROR_CARD_EXPIRED      = 9; // emv processing error: B-proto -10 - Card expired
-    READ_EVENT_TYPE_EMV_ERROR_CARD_ON_DENY_LIST = 10; // emv processing error: B-proto -10 - Card expired
+    READ_EVENT_TYPE_EMV_ERROR_CARD_ON_DENY_LIST = 10; // emv processing error: B-proto -33 - Card on denylist
   }
   ReadEventType       read_event_type = 1;
   bytes               identifier      = 2; // mifare: uid / emv: token

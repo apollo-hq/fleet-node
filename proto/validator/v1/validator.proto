@@ -149,8 +149,7 @@ message EmvStatus {
   string terminal_id = 1; // emv terminal identifier
   string bank_app_version = 2; // emv terminal bank application version.
   string maintenance_app_version = 3; // emv terminal maintenance application version.
-  int64 unix_nano = 4; // emv terminal current system date/time.
-  map<string, string> metadata = 5; // ?? optional: should contain non secured configs e.g. last blacklisted cards synchronisation time, last (re)start time etc.
+  map<string, string> metadata = 4; // ?? optional: should contain non secured configs e.g. last blacklisted cards synchronisation time, last (re)start time etc.
 }
 
 // GetStatusResponse is used by the node daemon to provide status
@@ -160,11 +159,11 @@ message GetStatusResponse {
     STATUS_UNSPECIFIED = 0;
     STATUS_ACTIVE      = 1;
     STATUS_INACTIVE    = 2;
-    STATUS_STARTED    = 3; // until the SetConfiguration is called
+    STATUS_STARTED     = 3; // until the SetConfiguration is called
   }
-  string currently_displaying     = 1; // Currently displayed (URL or filepath)
-  Status status                   = 2;
-  string message                  = 3; // optional, under normal circumstances it will be empty
+  string currently_displaying       = 1; // Currently displayed (URL or filepath)
+  Status status                     = 2;
+  string message                    = 3; // optional, under normal circumstances it will be empty
   int64  unix_nano                  = 4; // validator current system date/time
   string validator_id               = 5; // validator unique-id/serial-no
   string validator_software_version = 6; // validator app-version

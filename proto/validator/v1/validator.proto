@@ -160,7 +160,7 @@ message GetStatusResponse {
     STATUS_UNSPECIFIED = 0;
     STATUS_ACTIVE      = 1;
     STATUS_INACTIVE    = 2;
-    STATUS_STARTING    = 3; // until the SetConfiguration is called
+    STATUS_STARTED    = 3; // until the SetConfiguration is called
   }
   string currently_displaying     = 1; // Currently displayed (URL or filepath)
   Status status                   = 2;

@@ -94,9 +94,6 @@ message SetConfigurationRequest {
   uint64 primary_block   = 2;
   uint64 secondary_block = 3;
   bytes  sector_key      = 4;
-  // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
-  // since January 1, 1970 UTC.
-  int64  unix_nano       = 5;
 }
 
 message SetConfigurationResponse {}
@@ -111,9 +108,6 @@ message GetConfigurationResponse {
   uint64 primary_block   = 2;
   uint64 secondary_block = 3;
   bytes  sector_key      = 4;
-  // unix_nano is current time as a Unix time, the number of nanoseconds elapsed
-  // since January 1, 1970 UTC.
-  int64  unix_nano       = 5;
 }
 
 message DisplayRequest {

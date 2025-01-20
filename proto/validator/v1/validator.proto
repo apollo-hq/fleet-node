@@ -101,7 +101,7 @@ message SetConfigurationRequest {
   uint64 sector                       = 1;
   uint64 primary_block                = 2;
   uint64 secondary_block              = 3;
-  bytes  sector_key                   = 4;
+  bytes sector_key                    = 4;
   int64 nfc_write_callback_timeout_ms = 5; // For non EMV cards how long to wait for CardWrite event if needed.
   int64 emv_tap_callback_timeout_ms   = 6; // How many milliseconds to wait for ProcessEmvCard event.
 }

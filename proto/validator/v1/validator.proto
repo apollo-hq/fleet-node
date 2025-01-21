@@ -119,7 +119,7 @@ message GetConfigurationResponse {
   uint64 secondary_block            = 3;
   bytes  sector_key                 = 4;
   int64 nfc_write_timeout_ms        = 5;
-  bool emv_enabled                  = 6; // TODO 874 TLU: `true` if EMV is enabled.
+  bool emv_enabled                  = 6; // `true` if EMV is enabled.
   int64 emv_tap_callback_timeout_ms = 7;
 }
 

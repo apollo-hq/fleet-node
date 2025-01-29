@@ -102,6 +102,7 @@ message SetConfigurationRequest {
   bytes sector_key = 4;
   int64 nfc_write_callback_timeout_ms = 5;  // For non EMV cards how long to wait for CardWrite event if needed.
   int64 emv_tap_callback_timeout_ms = 6;    // How many milliseconds to wait for ProcessEmvCard event.
+  bool emv_enable = 7;                      // If true - emv should be enabled.
 }
 
 message SetConfigurationResponse {}

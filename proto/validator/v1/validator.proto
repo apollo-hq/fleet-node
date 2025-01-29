@@ -59,7 +59,7 @@ message StreamReaderEventsResponse {
     READ_EVENT_TYPE_UNSPECIFIED         = 0;
     READ_EVENT_TYPE_OK                  = 1; // all ok, block data ready
     READ_EVENT_TYPE_UNSPECIFIED_ERROR   = 2; // any other error than the ones below
-    READ_EVENT_TYPE_UNKNOWN_CARD_TYPE   = 3; // not a Mifare 4k card
+    READ_EVENT_TYPE_UNSUPPORTED_CARD    = 3; // not a Mifare 4k card
     READ_EVENT_TYPE_WRONG_KEY           = 4; // auth failed, probably not "our" card 
     READ_EVENT_TYPE_PERMISSIONS         = 5; // auth succeeded, but cannot read (incorrect card config)
     READ_EVENT_TYPE_INVALID_DATA        = 6; // both blocks contain invalid data (new card or fraud)

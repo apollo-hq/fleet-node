@@ -100,3 +100,6 @@ else
 	sed -i "s/BUF_VERSION := [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/BUF_VERSION := $(VERSION)/g" Makefile
 endif
 endif
+
+format-proto:
+	clang-format -i  proto/validator/v1/validator.proto

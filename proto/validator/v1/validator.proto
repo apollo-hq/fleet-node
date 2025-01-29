@@ -175,8 +175,9 @@ message ProcessEmvCardRequest {
     ACTION_IGNORE = 2;
   }
   Action action = 1;
-  string session_id = 2;  // session id from StreamReaderEventsResponse
-  bytes trip_data = 3;    // backoffice known structure (binary byte array)
+  string identifier = 2;  // EMV card identifier.
+  string session_id = 3;  // session id from StreamReaderEventsResponse
+  bytes trip_data = 4;    // backoffice known structure (binary byte array)
 }
 
 message ProcessEmvCardResponse {

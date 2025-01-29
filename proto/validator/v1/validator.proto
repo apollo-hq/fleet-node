@@ -38,6 +38,7 @@ service ValidatorService {
 
   rpc Restart(RestartRequest) returns (RestartResponse) {}
 
+  // ProcessEmvCard will proceed or cancel EMV transaction.
   rpc ProcessEmvCard(ProcessEmvCardRequest) returns (ProcessEmvCardResponse) {}
 }
 
@@ -117,7 +118,7 @@ message GetConfigurationResponse {
   uint64 sector                     = 1;
   uint64 primary_block              = 2;
   uint64 secondary_block            = 3;
-  bytes  sector_key                 = 4;
+  bytes sector_key                  = 4;
   int64 nfc_write_timeout_ms        = 5;
   bool emv_enabled                  = 6; // `true` if EMV is enabled.
   int64 emv_tap_callback_timeout_ms = 7;
@@ -181,4 +182,17 @@ message ProcessEmvCardRequest {
   bytes trip_data = 3; // backoffice known structure (binary byte array)
 }
 
-message ProcessEmvCardResponse {}
+message ProcessEmvCardResponse {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_OK = 1;                       // Processing succeeded.
+    STATUS_ERROR_GENERIC = 2;            // Generic error if non of the below.
+    STATUS_ERROR_CARD_NOT_VERIFIED = 3;  // emv processing error: B-proto -02 - Card has not been verified
+    STATUS_ERROR_CARD_EXPIRED = 4;       // emv processing error: B-proto -10 - Card expired
+    STATUS_ERROR_CARD_ON_DENY_LIST = 5;  // emv processing error: B-proto -33 - Card on denylist
+  }
+  Status status        = 1;
+  string error_message = 2; // optional message for the error
+  bytes  identifier    = 3; // emv: token
+  map<string, string> metadata = 4; // details about the card like brand, pan, etc.
+}

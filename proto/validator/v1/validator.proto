@@ -192,6 +192,5 @@ message ProcessEmvCardResponse {
   Status status = 1;
   string error_message = 2;          // optional message for the error
   bytes identifier = 3;              // emv: token
-  bytes tap_id = 4;                  // Tap ID from the terminal. TODO 874: 25-03-25 - asked Petr.
-  map<string, string> metadata = 5;  // details about the card like brand, pan, etc.
+  map<string, string> metadata = 4;  // details about the card like brand, pan, etc.
 }

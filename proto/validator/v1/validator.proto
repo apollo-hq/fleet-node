@@ -40,6 +40,12 @@ service ValidatorService {
 
   // ProcessEmvCard will proceed or cancel EMV transaction.
   rpc ProcessEmvCard(ProcessEmvCardRequest) returns (ProcessEmvCardResponse) {}
+
+  // EmvTerminalUpdate will install/update EMV terminal software.
+  rpc EmvTerminalUpdate(EmvTerminalUpdateRequest) returns (EmvTerminalUpdateResponse) {}
+
+  // GetEmvTerminalUpdateStatus will get the status of the EMV terminal update.
+  rpc GetEmvTerminalUpdateStatus(GetEmvTerminalUpdateStatusRequest) returns (GetEmvTerminalUpdateStatusResponse) {}
 }
 
 message StreamReaderEventsRequest {}
@@ -193,4 +199,20 @@ message ProcessEmvCardResponse {
   string error_message = 2;          // optional message for the error
   bytes identifier = 3;              // emv: token
   map<string, string> metadata = 4;  // details about the card like brand, pan, etc.
+}
+
+message EmvTerminalUpdateRequest {
+}
+message EmvTerminalUpdateResponse {}
+
+message GetEmvTerminalUpdateStatusRequest {}
+message GetEmvTerminalUpdateStatusResponse {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_UPDATING = 1;        // Updating.
+    STATUS_FINISHED_OK = 2;     // Processing succeeded.
+    STATUS_FINISHED_ERROR = 3;  // Generic error if non of the below.
+  }
+  Status status = 1;
+  string error_message = 2;         // optional message for the error
 }

@@ -201,9 +201,16 @@ message ProcessEmvCardResponse {
   map<string, string> metadata = 4;  // details about the card like brand, pan, etc.
 }
 
-message EmvTerminalUpdateRequest {
+message EmvTerminalUpdateRequest {}
+message EmvTerminalUpdateResponse {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_ACCEPTED = 1;
+    STATUS_REFUSED = 2;
+  }
+  Status status = 1;
+  string refuse_message = 2;         // optional message for the refused.
 }
-message EmvTerminalUpdateResponse {}
 
 message GetEmvTerminalUpdateStatusRequest {}
 message GetEmvTerminalUpdateStatusResponse {
@@ -211,8 +218,9 @@ message GetEmvTerminalUpdateStatusResponse {
     STATUS_UNSPECIFIED = 0;
     STATUS_UPDATING = 1;        // Updating.
     STATUS_FINISHED_OK = 2;     // Processing succeeded.
-    STATUS_FINISHED_ERROR = 3;  // Generic error if non of the below.
+    STATUS_FINISHED_ERROR = 3;  // Generic error.
   }
   Status status = 1;
-  string error_message = 2;         // optional message for the error
+  string error_message = 2;     // optional message for the error
+  EmvStatus emv_status = 3;     // emv status on success
 }

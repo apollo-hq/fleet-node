@@ -160,12 +160,12 @@ message GetStatusResponse {
   }
   string currently_displaying = 1;  // Currently displayed (URL or filepath)
   Status status = 2;
-  string message = 3;                     // optional, under normal circumstances it will be empty
-  int64 unix_nano = 4;                    // validator current system date/time
-  string validator_id = 5;                // validator unique-id/serial-no
-  string validator_software_version = 6;  // validator app-version
-  EmvTerminal emv_terminal = 7;           // emv terminal
-  LastUpdateResult last_update_result = 8;
+  string message = 3;                      // optional, under normal circumstances it will be empty
+  int64 unix_nano = 4;                     // validator current system date/time
+  string validator_id = 5;                 // validator unique-id/serial-no
+  string validator_software_version = 6;   // validator app-version
+  EmvTerminal emv_terminal = 7;            // emv terminal
+  LastUpdateResult last_update_result = 8; // should be populated after manual updates.
 }
 
 

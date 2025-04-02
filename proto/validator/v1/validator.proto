@@ -164,10 +164,9 @@ message GetStatusResponse {
   int64 unix_nano = 4;                     // validator current system date/time
   string validator_id = 5;                 // validator unique-id/serial-no
   string validator_software_version = 6;   // validator app-version
-  EmvTerminal emv_terminal = 7;            // emv terminal
+  EmvTerminal emv_terminal = 7;            // emv terminal will be populated on successful manual update, or in EMV mode.
   LastUpdateResult last_update_result = 8; // should be populated after manual updates.
 }
-
 
 message LastUpdateResult {
   enum Status {

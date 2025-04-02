@@ -146,7 +146,6 @@ message EmvTerminal {
   string bank_app_version = 2;         // emv terminal bank application version.
   string maintenance_app_version = 3;  // emv terminal maintenance application version.
   map<string, string> metadata = 4;    // ?? optional: should contain non secured configs e.g. last blacklisted cards synchronisation time, last (re)start time etc.
-  string message = 5;
 }
 
 // GetStatusResponse is used by the node daemon to provide status

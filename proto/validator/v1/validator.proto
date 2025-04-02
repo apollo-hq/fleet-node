@@ -43,9 +43,6 @@ service ValidatorService {
 
   // EmvTerminalUpdate will install/update EMV terminal software.
   rpc EmvTerminalUpdate(EmvTerminalUpdateRequest) returns (EmvTerminalUpdateResponse) {}
-
-  // GetEmvTerminalUpdateStatus will get the status of the EMV terminal update.
-  rpc GetEmvTerminalUpdateStatus(GetEmvTerminalUpdateStatusRequest) returns (GetEmvTerminalUpdateStatusResponse) {}
 }
 
 message StreamReaderEventsRequest {}
@@ -144,11 +141,12 @@ message PlaySoundResponse {}
 
 message GetStatusRequest {}
 
-message EmvStatus {
+message EmvTerminal {
   string terminal_id = 1;              // emv terminal identifier
   string bank_app_version = 2;         // emv terminal bank application version.
   string maintenance_app_version = 3;  // emv terminal maintenance application version.
   map<string, string> metadata = 4;    // ?? optional: should contain non secured configs e.g. last blacklisted cards synchronisation time, last (re)start time etc.
+  string message = 5;
 }
 
 // GetStatusResponse is used by the node daemon to provide status
@@ -159,6 +157,7 @@ message GetStatusResponse {
     STATUS_ACTIVE = 1;
     STATUS_INACTIVE = 2;
     STATUS_STARTED = 3;  // until the SetConfiguration is called
+    STATUS_UPDATING = 4;
   }
   string currently_displaying = 1;  // Currently displayed (URL or filepath)
   Status status = 2;
@@ -166,7 +165,19 @@ message GetStatusResponse {
   int64 unix_nano = 4;                    // validator current system date/time
   string validator_id = 5;                // validator unique-id/serial-no
   string validator_software_version = 6;  // validator app-version
-  EmvStatus emv_status = 7;               // emv status
+  EmvTerminal emv_terminal = 7;           // emv terminal
+  LastUpdateResult last_update_result = 8;
+}
+
+
+message LastUpdateResult {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_FINISHED_OK = 1;     // Processing succeeded.
+    STATUS_FINISHED_ERROR = 2;  // Generic error.
+  }
+  Status status = 1;
+  string error_message = 2;     // optional message for the error
 }
 
 message RestartCardReaderRequest {}
@@ -210,17 +221,4 @@ message EmvTerminalUpdateResponse {
   }
   Status status = 1;
   string refuse_message = 2;         // optional message for the refused.
-}
-
-message GetEmvTerminalUpdateStatusRequest {}
-message GetEmvTerminalUpdateStatusResponse {
-  enum Status {
-    STATUS_UNSPECIFIED = 0;
-    STATUS_UPDATING = 1;        // Updating.
-    STATUS_FINISHED_OK = 2;     // Processing succeeded.
-    STATUS_FINISHED_ERROR = 3;  // Generic error.
-  }
-  Status status = 1;
-  string error_message = 2;     // optional message for the error
-  EmvStatus emv_status = 3;     // emv status on success
 }
